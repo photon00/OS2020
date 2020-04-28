@@ -1,6 +1,8 @@
+CFLAG=-Wall -DDEBUG -g
+
 all:
-	gcc -Wall -o main main.c
+	gcc $(CFLAG) -o main main.c process.c
 test:
 	gcc -Wall -o test test.c
 clean:
-	rm test
+	rm test main
