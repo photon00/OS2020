@@ -25,12 +25,12 @@ int scheduling();
 void enqueue(int i){  RR_queue[tail] = i; tail = (tail+1)%nproc; qlen++; }
 void dequeue(){ head = (head+1)%nproc; qlen--; }
 #ifdef DEBUG
-	void show_queue(){
-		fprintf(stderr, "RR_queue: ");
-		for (int i=0; i<qlen; i++)
-			fprintf(stderr, "%d ", RR_queue[(head+i)%nproc]);
-		fprintf(stderr, "\n");
-	}	
+void show_queue(){
+	fprintf(stderr, "RR_queue: ");
+	for (int i=0; i<qlen; i++)
+		fprintf(stderr, "%d ", RR_queue[(head+i)%nproc]);
+	fprintf(stderr, "\n");
+}	
 #endif
 
 
