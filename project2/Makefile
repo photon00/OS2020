@@ -15,20 +15,22 @@ subdirs: ksocket
 	done
 
 install:
-	insmod ksocket/ksocket.ko ;\
-	insmod master_device/master_device.ko ;\
-	insmod slave_device/slave_device.ko
+	insmod ksocket/ksocket.ko ; \
+	insmod master_device/master_device.ko ; \
+	insmod slave_device/slave_device.ko ; \
+	chmod 666 /dev/master_device ; \
+	chmod 666 /dev/slave_device ;
 
 uninstall:
-	rmmod slave_device ;\
-	rmmod master_device ;\
+	rmmod slave_device ; \
+	rmmod master_device ; \
 	rmmod ksocket ;
 
 clean:
 	cd ksocket && make clean
 	for dir in $(SUBDIRS); do \
-		cd $$dir; \
-		$(MAKE) clean; \
+		cd $$dir ; \
+		$(MAKE) clean ; \
 		cd .. ; \
 	done
 
