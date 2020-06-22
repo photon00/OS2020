@@ -76,7 +76,6 @@ int slave_mmap(struct file *filp, struct vm_area_struct *vma){
 		vma->vm_page_prot
 	);
 	vma->vm_flags |= VM_RESERVED;
-	printk(KERN_INFO "execute slave mmap()!\n");
 	return 0;
 }
 
@@ -142,7 +141,6 @@ static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
 
-    printk("slave device ioctl");
 
 	switch(ioctl_num){
 		case slave_IOCTL_CREATESOCK:// create socket and connect to master
@@ -179,11 +177,15 @@ static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long
 			break;
 		case slave_IOCTL_MMAP:
 			while (1){
-				len = krecv(sockfd_cli, buf, sizeof(buf), 0);
-				if (len == 0) { break; }
+				if (offset + BUF_SIZE < MAP_SIZE){
+					len = krecv(sockfd_cli, buf, sizeof(buf), 0);
+				}
+				else {
+					len = krecv(sockfd_cli, buf, MAP_SIZE-offset, 0);
+				}
+				if (len == 0) break;
 				memcpy(file->private_data + offset, buf, len);
 				offset += len;
-				if (offset + BUF_SIZE > MAP_SIZE) break;
 			}
 			ret = (long)offset;
 			break;

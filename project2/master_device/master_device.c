@@ -78,7 +78,6 @@ static int master_mmap(struct file *filp, struct vm_area_struct *vma){
 		vma->vm_page_prot
 	);
 	vma->vm_flags |= VM_RESERVED;
-	printk(KERN_INFO "execute master mmap()!\n");
 	return 0;
 }
 
@@ -175,8 +174,6 @@ static long master_ioctl(struct file *file, unsigned int ioctl_num, unsigned lon
     pte_t *ptep, pte;
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
-
-	printk("master device ioctl");
 
 	switch(ioctl_num){
 		case master_IOCTL_CREATESOCK:// create socket and accept a connection
