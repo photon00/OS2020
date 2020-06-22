@@ -175,6 +175,9 @@ static long master_ioctl(struct file *file, unsigned int ioctl_num, unsigned lon
     pte_t *ptep, pte;
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
+
+	printk("master device ioctl");
+
 	switch(ioctl_num){
 		case master_IOCTL_CREATESOCK:// create socket and accept a connection
 			sockfd_cli = kaccept(sockfd_srv, (struct sockaddr *)&addr_cli, &addr_len);

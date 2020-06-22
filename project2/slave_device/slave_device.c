@@ -33,8 +33,6 @@
 #define BUF_SIZE 512
 #define MAP_SIZE PAGE_SIZE * 100
 
-
-
 struct dentry  *file1;//debug file
 
 typedef struct socket * ksocket_t;
@@ -182,9 +180,10 @@ static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long
 		case slave_IOCTL_MMAP:
 			while (1){
 				len = krecv(sockfd_cli, buf, sizeof(buf), 0);
-				if (len == 0) break;
+				if (len == 0) { break; }
 				memcpy(file->private_data + offset, buf, len);
 				offset += len;
+				if (offset + BUF_SIZE > MAP_SIZE) break;
 			}
 			ret = (long)offset;
 			break;
