@@ -31,7 +31,7 @@
 
 
 #define BUF_SIZE 512
-
+#define MAP_SIZE PAGE_SIZE * 100
 
 
 
@@ -52,6 +52,7 @@ static void __exit slave_exit(void);
 
 int slave_close(struct inode *inode, struct file *filp);
 int slave_open(struct inode *inode, struct file *filp);
+int slave_mmap(struct file *filp, struct vm_area_struct *vma);
 static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param);
 ssize_t receive_msg(struct file *filp, char *buf, size_t count, loff_t *offp );
 
@@ -65,8 +66,21 @@ static struct file_operations slave_fops = {
 	.unlocked_ioctl = slave_ioctl,
 	.open = slave_open,
 	.read = receive_msg,
-	.release = slave_close
+	.release = slave_close,
+	.mmap = slave_mmap
 };
+
+int slave_mmap(struct file *filp, struct vm_area_struct *vma){
+	remap_pfn_range(vma,
+		vma->vm_start,
+		virt_to_phys(filp->private_data) >> PAGE_SHIFT,
+		vma->vm_end - vma->vm_start,
+		vma->vm_page_prot
+	);
+	vma->vm_flags |= VM_RESERVED;
+	printk(KERN_INFO "execute slave mmap()!\n");
+	return 0;
+}
 
 //device info
 static struct miscdevice slave_dev = {
@@ -101,20 +115,23 @@ static void __exit slave_exit(void)
 
 int slave_close(struct inode *inode, struct file *filp)
 {
+	kfree(filp->private_data);
 	return 0;
 }
 
 int slave_open(struct inode *inode, struct file *filp)
 {
+	filp->private_data = kmalloc(MAP_SIZE, GFP_KERNEL);
 	return 0;
 }
+
 static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param)
 {
 	long ret = -EINVAL;
 
 	int addr_len ;
 	unsigned int i;
-	size_t len, data_size = 0;
+	size_t len, offset = 0;
 	char *tmp, ip[20], buf[BUF_SIZE];
 	struct page *p_print;
 	unsigned char *px;
@@ -163,7 +180,13 @@ static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long
 			ret = 0;
 			break;
 		case slave_IOCTL_MMAP:
-
+			while (1){
+				len = krecv(sockfd_cli, buf, sizeof(buf), 0);
+				if (len == 0) break;
+				memcpy(file->private_data + offset, buf, len);
+				offset += len;
+			}
+			ret = (long)offset;
 			break;
 
 		case slave_IOCTL_EXIT:
