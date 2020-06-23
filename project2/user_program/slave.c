@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -36,72 +35,78 @@ int main (int argc, char* argv[])
 		fprintf(stderr, "usage: %s <N> <filenames ...> <method> <ip>\n", argv[0]);
 		return -1;
 	}
-	strcpy(file_name, argv[2]);  // TODO: enable multiple files transfer
-	strcpy(method, argv[3]);
-	strcpy(ip, argv[4]);
-
+	strcpy(method, argv[N+2]);
+	strcpy(ip, argv[N+3]);
 
 	if( (dev_fd = open("/dev/slave_device", O_RDWR)) < 0)//should be O_RDWR for PROT_WRITE when mmap()
 	{
 		perror("failed to open /dev/slave_device\n");
 		return 1;
 	}
-	gettimeofday(&start ,NULL);
-	if( (file_fd = open (file_name, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) < 0)
-	{
-		perror("failed to open input file\n");
-		return 1;
-	}
 
-	if(ioctl(dev_fd, 0x12345677, ip) == -1)	//0x12345677 : connect to master in the device
-	{
-		perror("ioclt create slave socket error\n");
-		return 1;
-	}
-
-    write(1, "ioctl success\n", 14);
+	ioctl(dev_fd, 0x12345677, ip);
 	read(dev_fd, &N_master, 4);
+	ioctl(dev_fd, 0x12345679);
 	fprintf(stderr, "get numbers of files from master = %d\n", N_master);
+	if (N != N_master) return;
 
-	switch(method[0])
+	for(int i = 0; i < N; i++)
 	{
-		case 'f'://fcntl : read()/write()
-			do
-			{
-				ret = read(dev_fd, buf, sizeof(buf)); // read from the the device
-				write(file_fd, buf, ret); //write to the input file
-				file_size += ret;
-			}while(ret > 0);
-			break;
-		case 'm':
-			kernel_address = mmap(NULL, MAP_SIZE, PROT_READ, MAP_SHARED, dev_fd, 0);
-			while (1) {
-				ret = ioctl(dev_fd, 0x12345678);
-				if (ret == 0) {
-					file_size = offset;
-					break;
+		offset = 0;
+		file_size = 0;
+		strcpy(file_name, argv[i+2]);
+
+		gettimeofday(&start ,NULL);
+		if( (file_fd = open (file_name, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) < 0)
+		{
+			perror("failed to open input file\n");
+			return 1;
+		}
+
+		if(ioctl(dev_fd, 0x12345677, ip) == -1)	//0x12345677 : connect to master in the device
+		{
+			perror("ioclt create slave socket error\n");
+			return 1;
+		}
+
+		switch(method[0])
+		{
+			case 'f'://fcntl : read()/write()
+				do
+				{
+					ret = read(dev_fd, buf, sizeof(buf)); // read from the the device
+					write(file_fd, buf, ret); //write to the input file
+					file_size += ret;
+				}while(ret > 0);
+				break;
+			case 'm':
+				kernel_address = mmap(NULL, MAP_SIZE, PROT_READ, MAP_SHARED, dev_fd, 0);
+				while (1) {
+					ret = ioctl(dev_fd, 0x12345678);
+					if (ret == 0) {
+						file_size = offset;
+						break;
+					}
+					posix_fallocate(file_fd, offset, ret);
+					file_address = mmap(NULL, ret, PROT_WRITE, MAP_SHARED, file_fd, offset);
+					memcpy(file_address, kernel_address, ret);
+					offset += ret;
 				}
-				posix_fallocate(file_fd, offset, ret);
-				file_address = mmap(NULL, ret, PROT_WRITE, MAP_SHARED, file_fd, offset);
-				memcpy(file_address, kernel_address, ret);
-				offset += ret;
-			}
-			break;
+				break;
+		}
+
+		if(ioctl(dev_fd, 0x12345679) == -1)// end receiving data, close the connection
+		{
+			perror("ioclt client exits error\n");
+			return 1;
+		}
+		gettimeofday(&end, NULL);
+		trans_time = (end.tv_sec - start.tv_sec)*1000 + (end.tv_usec - start.tv_usec)*0.0001;
+		printf("Transmission time: %lf ms, File size: %d bytes\n", trans_time, file_size);
+
+		close(file_fd);
 	}
-
-
-
-	if(ioctl(dev_fd, 0x12345679) == -1)// end receiving data, close the connection
-	{
-		perror("ioclt client exits error\n");
-		return 1;
-	}
-	gettimeofday(&end, NULL);
-	trans_time = (end.tv_sec - start.tv_sec)*1000 + (end.tv_usec - start.tv_usec)*0.0001;
-	printf("Transmission time: %lf ms, File size: %d bytes\n", trans_time, file_size / 8);
 	ioctl(dev_fd, 0x11111111);
-
-	close(file_fd);
 	close(dev_fd);
 	return 0;
 }
