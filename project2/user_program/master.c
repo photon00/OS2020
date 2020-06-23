@@ -18,6 +18,7 @@ size_t get_filesize(const char* filename);//get the size of the input file
 int main (int argc, char* argv[])
 {
 	char buf[BUF_SIZE];
+	int N;  // numbers of file
 	int i, dev_fd, file_fd;// the fd for the device and the fd for the input file
 	size_t ret, file_size, offset = 0, tmp;
 	char file_name[50], method[20];
@@ -26,8 +27,9 @@ int main (int argc, char* argv[])
 	struct timeval end;
 	double trans_time; //calulate the time between the device is opened and it is closed
 	
-	strcpy(file_name, argv[1]);
-	strcpy(method, argv[2]);
+	N = atoi(argv[1]);
+	strcpy(file_name, argv[2]);  // TODO: enable multipile file transfer
+	strcpy(method, argv[3]);
 
 
 	if( (dev_fd = open("/dev/master_device", O_RDWR)) < 0)
@@ -55,6 +57,8 @@ int main (int argc, char* argv[])
 		return 1;
 	}
 
+	fprintf(stderr, "tell slave numbers of file = %d\n", N);
+	write(dev_fd, &N, 4);
 
 	switch(method[0])
 	{

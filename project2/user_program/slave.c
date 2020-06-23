@@ -15,6 +15,7 @@
 int main (int argc, char* argv[])
 {
 	char buf[BUF_SIZE];
+	int N_master, N;  // number of files
 	int i, dev_fd, file_fd;// the fd for the device and the fd for the input file
 	size_t ret, file_size = 0, data_size = -1, offset = 0;
 	char file_name[50];
@@ -25,9 +26,10 @@ int main (int argc, char* argv[])
 	double trans_time; //calulate the time between the device is opened and it is closed
 	char *kernel_address, *file_address;
 
-	strcpy(file_name, argv[1]);
-	strcpy(method, argv[2]);
-	strcpy(ip, argv[3]);
+	N = atoi(argv[1]);
+	strcpy(file_name, argv[2]);  // TODO: enable multiple files transfer
+	strcpy(method, argv[3]);
+	strcpy(ip, argv[4]);
 
 
 	if( (dev_fd = open("/dev/slave_device", O_RDWR)) < 0)//should be O_RDWR for PROT_WRITE when mmap()
@@ -49,6 +51,8 @@ int main (int argc, char* argv[])
 	}
 
     write(1, "ioctl success\n", 14);
+	read(dev_fd, &N_master, 4);
+	fprintf(stderr, "get numbers of files from master = %d\n", N_master);
 
 	switch(method[0])
 	{
