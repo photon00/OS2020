@@ -41,6 +41,7 @@ extern int kbind(ksocket_t socket, struct sockaddr *address, int address_len);
 extern int klisten(ksocket_t socket, int backlog);
 extern ksocket_t kaccept(ksocket_t socket, struct sockaddr *address, int *address_len);
 extern ssize_t ksend(ksocket_t socket, const void *buffer, size_t length, int flags);
+extern ssize_t krecv(ksocket_t socket, void *buffer, size_t length, int flags);
 extern int kclose(ksocket_t socket);
 extern char *inet_ntoa(struct in_addr *in);//DO NOT forget to kfree the return pointer
 
@@ -52,6 +53,7 @@ int master_open(struct inode *inode, struct file *filp);
 static int master_mmap(struct file *filp, struct vm_area_struct *vma);
 static long master_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param);
 static ssize_t send_msg(struct file *file, const char __user *buf, size_t count, loff_t *data);//use when user is writing to this device
+static ssize_t recv_msg(struct file *filp, char *buf, size_t count, loff_t *offp);
 
 static ksocket_t sockfd_srv, sockfd_cli;//socket for master and socket for slave
 static struct sockaddr_in addr_srv;//address for master
@@ -65,6 +67,7 @@ static struct file_operations master_fops = {
 	.owner = THIS_MODULE,
 	.unlocked_ioctl = master_ioctl,
 	.open = master_open,
+	.read = recv_msg,
 	.write = send_msg,
 	.release = master_close,
 	.mmap = master_mmap
@@ -217,6 +220,7 @@ static long master_ioctl(struct file *file, unsigned int ioctl_num, unsigned lon
 	set_fs(old_fs);
 	return ret;
 }
+
 static ssize_t send_msg(struct file *file, const char __user *buf, size_t count, loff_t *data)
 {
 	//call when user is writing to this device
@@ -228,6 +232,18 @@ static ssize_t send_msg(struct file *file, const char __user *buf, size_t count,
 	return count;
 
 }
+
+static ssize_t recv_msg(struct file *filp, char *buf, size_t count, loff_t *offp )
+{
+	//call when user is reading from this device
+	char msg[BUF_SIZE];
+	size_t len;
+	len = krecv(sockfd_cli, msg, sizeof(msg), 0);
+	if(copy_to_user(buf, msg, len))
+		return -ENOMEM;
+	return len;
+}
+
 
 
 

@@ -40,6 +40,7 @@ typedef struct socket * ksocket_t;
 //functions about kscoket are exported,and thus we use extern here
 extern ksocket_t ksocket(int domain, int type, int protocol);
 extern int kconnect(ksocket_t socket, struct sockaddr *address, int address_len);
+extern ssize_t ksend(ksocket_t socket, const void *buffer, size_t length, int flags);
 extern ssize_t krecv(ksocket_t socket, void *buffer, size_t length, int flags);
 extern int kclose(ksocket_t socket);
 extern unsigned int inet_addr(char* ip);
@@ -52,7 +53,8 @@ int slave_close(struct inode *inode, struct file *filp);
 int slave_open(struct inode *inode, struct file *filp);
 int slave_mmap(struct file *filp, struct vm_area_struct *vma);
 static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param);
-ssize_t receive_msg(struct file *filp, char *buf, size_t count, loff_t *offp );
+static ssize_t send_msg(struct file *file, const char __user *buf, size_t count, loff_t *data);
+static ssize_t recv_msg(struct file *filp, char *buf, size_t count, loff_t *offp);
 
 static mm_segment_t old_fs;
 static ksocket_t sockfd_cli;//socket to the master server
@@ -63,7 +65,8 @@ static struct file_operations slave_fops = {
 	.owner = THIS_MODULE,
 	.unlocked_ioctl = slave_ioctl,
 	.open = slave_open,
-	.read = receive_msg,
+	.read = recv_msg,
+	.write = send_msg,
 	.release = slave_close,
 	.mmap = slave_mmap
 };
@@ -213,7 +216,19 @@ static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long
 	return ret;
 }
 
-ssize_t receive_msg(struct file *filp, char *buf, size_t count, loff_t *offp )
+static ssize_t send_msg(struct file *file, const char __user *buf, size_t count, loff_t *data)
+{
+	//call when user is writing to this device
+	char msg[BUF_SIZE];
+	if(copy_from_user(msg, buf, count))
+		return -ENOMEM;
+	ksend(sockfd_cli, msg, count, 0);
+
+	return count;
+
+}
+
+static ssize_t recv_msg(struct file *filp, char *buf, size_t count, loff_t *offp )
 {
 	//call when user is reading from this device
 	char msg[BUF_SIZE];

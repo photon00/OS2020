@@ -47,9 +47,15 @@ int main (int argc, char* argv[])
 
 	ioctl(dev_fd, 0x12345677, ip);
 	read(dev_fd, &N_master, 4);
+	if (N > N_master)
+	{
+		fprintf(stderr, "number of files remains in master is less than %d\n", N);
+		N = N_master;
+	}
+	write(dev_fd, &N, 4);
 	ioctl(dev_fd, 0x12345679);
-	fprintf(stderr, "get numbers of files from master = %d\n", N_master);
-	if (N != N_master) return -1;
+	fprintf(stderr, "get numbers of files from master = %d\n", N);
+	
 
 	for(int i = 0; i < N; i++)
 	{
