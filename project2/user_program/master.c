@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -26,8 +27,16 @@ int main (int argc, char* argv[])
 	struct timeval start;
 	struct timeval end;
 	double trans_time; //calulate the time between the device is opened and it is closed
-	
+
 	N = atoi(argv[1]);
+	if (N == 0) {
+		fprintf(stderr, "The following arguments are required: int N\n");
+		return -1;
+	}
+	if (argc != N + 3) {
+		fprintf(stderr, "usage: %s <N> <filenames ...> <method>\n", argv[0]);
+		return -1;
+	}
 	strcpy(file_name, argv[2]);  // TODO: enable multipile file transfer
 	strcpy(method, argv[3]);
 
@@ -84,7 +93,7 @@ int main (int argc, char* argv[])
 			}
 			break;
 	}
-	
+
 	if(ioctl(dev_fd, 0x12345679) == -1) // end sending data, close the connection
 	{
 		perror("ioclt server exits error\n");
@@ -94,7 +103,7 @@ int main (int argc, char* argv[])
 	trans_time = (end.tv_sec - start.tv_sec)*1000 + (end.tv_usec - start.tv_usec)*0.0001;
 	printf("Transmission time: %lf ms, File size: %d bytes\n", trans_time, file_size / 8);
 	ioctl(dev_fd, 0x11111111);
-	
+
 	close(file_fd);
 	close(dev_fd);
 
@@ -103,7 +112,7 @@ int main (int argc, char* argv[])
 
 size_t get_filesize(const char* filename)
 {
-    struct stat st;
-    stat(filename, &st);
-    return st.st_size;
+	struct stat st;
+	stat(filename, &st);
+	return st.st_size;
 }

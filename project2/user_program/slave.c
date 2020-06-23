@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -27,6 +28,14 @@ int main (int argc, char* argv[])
 	char *kernel_address, *file_address;
 
 	N = atoi(argv[1]);
+	if (N == 0) {
+		fprintf(stderr, "The following arguments are required: int N\n");
+		return -1;
+	}
+	if (argc != N + 4) {
+		fprintf(stderr, "usage: %s <N> <filenames ...> <method> <ip>\n", argv[0]);
+		return -1;
+	}
 	strcpy(file_name, argv[2]);  // TODO: enable multiple files transfer
 	strcpy(method, argv[3]);
 	strcpy(ip, argv[4]);
