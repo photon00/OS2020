@@ -27,6 +27,10 @@ int main (int argc, char* argv[])
 	double trans_time; //calulate the time between the device is opened and it is closed
 	char *kernel_address, *file_address;
 
+	if (argc < 5) {
+		fprintf(stderr, "usage: %s <N> <filenames ...> <method> <ip>\n", argv[0]);
+		return -1;
+	}
 	N = atoi(argv[1]);
 	if (N == 0) {
 		fprintf(stderr, "The following arguments are required: int N\n");
@@ -54,8 +58,8 @@ int main (int argc, char* argv[])
 	}
 	write(dev_fd, &N, 4);
 	ioctl(dev_fd, 0x12345679);
-	fprintf(stderr, "get numbers of files from master = %d\n", N);
-	
+	fprintf(stdout, "get numbers of files from master = %d\n", N);
+
 
 	for(int i = 0; i < N; i++)
 	{

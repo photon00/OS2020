@@ -6,4 +6,5 @@ data
 *.cmd
 *.mod.c
 *tmp_versions*
+.cache.mk
 sample_input

@@ -28,6 +28,10 @@ int main (int argc, char* argv[])
 	struct timeval end;
 	double trans_time; //calulate the time between the device is opened and it is closed
 
+	if (argc < 4) {
+		fprintf(stderr, "usage: %s <N> <filenames ...> <method>\n", argv[0]);
+		return -1;
+	}
 	N = atoi(argv[1]);
 	if (N == 0) {
 		fprintf(stderr, "The following arguments are required: int N\n");
@@ -45,12 +49,12 @@ int main (int argc, char* argv[])
 		return 1;
 	}
 
-	fprintf(stderr, "tell slave numbers of file = %d\n", N);
+	fprintf(stdout, "tell slave numbers of file = %d\n", N);
 	while(N)
-	{	
+	{
 		ioctl(dev_fd, 0x12345677);
 		write(dev_fd, &N, 4);
-		read(dev_fd, &N_slave, 4);		
+		read(dev_fd, &N_slave, 4);
 		ioctl(dev_fd, 0x12345679);
 
 		for(int i = counter; i < counter+N_slave; i++)
