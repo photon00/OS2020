@@ -70,11 +70,11 @@ static struct file_operations slave_fops = {
 
 int slave_mmap(struct file *filp, struct vm_area_struct *vma){
 	remap_pfn_range(vma,
-		vma->vm_start,
-		virt_to_phys(filp->private_data) >> PAGE_SHIFT,
-		vma->vm_end - vma->vm_start,
-		vma->vm_page_prot
-	);
+			vma->vm_start,
+			virt_to_phys(filp->private_data) >> PAGE_SHIFT,
+			vma->vm_end - vma->vm_start,
+			vma->vm_page_prot
+			);
 	vma->vm_flags |= VM_RESERVED;
 	return 0;
 }
@@ -127,24 +127,24 @@ static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long
 	long ret = -EINVAL;
 
 	int addr_len ;
-	unsigned int i;
+	// unsigned int i;
 	size_t len, offset = 0;
 	char *tmp, ip[20], buf[BUF_SIZE];
-	struct page *p_print;
-	unsigned char *px;
+	// struct page *p_print;
+	// unsigned char *px;
 
-    pgd_t *pgd;
+	pgd_t *pgd;
 	p4d_t *p4d;
 	pud_t *pud;
 	pmd_t *pmd;
-    pte_t *ptep, pte;
+	pte_t *ptep; //, pte;
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
 
 
 	switch(ioctl_num){
 		case slave_IOCTL_CREATESOCK:// create socket and connect to master
-            printk("slave device ioctl create socket");
+			printk("slave device ioctl create socket");
 
 			if(copy_from_user(ip, (char*)ioctl_param, sizeof(ip)))
 				return -ENOMEM;
@@ -199,24 +199,23 @@ static long slave_ioctl(struct file *file, unsigned int ioctl_num, unsigned long
 			ret = 0;
 			break;
 		default:
-            pgd = pgd_offset(current->mm, ioctl_param);
+			pgd = pgd_offset(current->mm, ioctl_param);
 			p4d = p4d_offset(pgd, ioctl_param);
 			pud = pud_offset(p4d, ioctl_param);
 			pmd = pmd_offset(pud, ioctl_param);
 			ptep = pte_offset_kernel(pmd , ioctl_param);
-			pte = *ptep;
-			printk("slave: %lX\n", pte);
+			printk("slave: %lX\n", ptep->pte);
 			ret = 0;
 			break;
 	}
-    set_fs(old_fs);
+	set_fs(old_fs);
 
 	return ret;
 }
 
 ssize_t receive_msg(struct file *filp, char *buf, size_t count, loff_t *offp )
 {
-//call when user is reading from this device
+	//call when user is reading from this device
 	char msg[BUF_SIZE];
 	size_t len;
 	len = krecv(sockfd_cli, msg, sizeof(msg), 0);

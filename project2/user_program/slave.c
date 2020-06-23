@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -48,7 +49,7 @@ int main (int argc, char* argv[])
 	read(dev_fd, &N_master, 4);
 	ioctl(dev_fd, 0x12345679);
 	fprintf(stderr, "get numbers of files from master = %d\n", N_master);
-	if (N != N_master) return;
+	if (N != N_master) return -1;
 
 	for(int i = 0; i < N; i++)
 	{
@@ -102,7 +103,7 @@ int main (int argc, char* argv[])
 		}
 		gettimeofday(&end, NULL);
 		trans_time = (end.tv_sec - start.tv_sec)*1000 + (end.tv_usec - start.tv_usec)*0.0001;
-		printf("Transmission time: %lf ms, File size: %d bytes\n", trans_time, file_size);
+		printf("Transmission time: %lf ms, File size: %zd bytes\n", trans_time, file_size);
 
 		close(file_fd);
 	}

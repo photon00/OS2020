@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -26,7 +27,7 @@ int main (int argc, char* argv[])
 	struct timeval start;
 	struct timeval end;
 	double trans_time; //calulate the time between the device is opened and it is closed
-	
+
 	N = atoi(argv[1]);
 	if (N == 0) {
 		fprintf(stderr, "The following arguments are required: int N\n");
@@ -37,7 +38,7 @@ int main (int argc, char* argv[])
 		return -1;
 	}
 	strcpy(method, argv[N+2]);
-	
+
 	if( (dev_fd = open("/dev/master_device", O_RDWR)) < 0)
 	{
 		perror("failed to open /dev/master_device\n");
@@ -53,7 +54,7 @@ int main (int argc, char* argv[])
 	{
 		offset = 0;
 		strcpy(file_name, argv[i+2]);
-		
+
 		gettimeofday(&start ,NULL);
 		if( (file_fd = open (file_name, O_RDWR)) < 0 )
 		{
@@ -97,7 +98,7 @@ int main (int argc, char* argv[])
 				}
 				break;
 		}
-	
+
 		if(ioctl(dev_fd, 0x12345679) == -1) // end sending data, close the connection
 		{
 			perror("ioclt server exits error\n");
@@ -105,8 +106,8 @@ int main (int argc, char* argv[])
 		}
 		gettimeofday(&end, NULL);
 		trans_time = (end.tv_sec - start.tv_sec)*1000 + (end.tv_usec - start.tv_usec)*0.0001;
-		printf("Transmission time: %lf ms, File size: %d bytes\n", trans_time, file_size);
-	
+		printf("Transmission time: %lf ms, File size: %zd bytes\n", trans_time, file_size);
+
 		close(file_fd);
 	}
 	ioctl(dev_fd, 0x11111111);
@@ -116,7 +117,7 @@ int main (int argc, char* argv[])
 
 size_t get_filesize(const char* filename)
 {
-    struct stat st;
-    stat(filename, &st);
-    return st.st_size;
+	struct stat st;
+	stat(filename, &st);
+	return st.st_size;
 }

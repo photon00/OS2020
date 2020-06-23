@@ -72,11 +72,11 @@ static struct file_operations master_fops = {
 
 static int master_mmap(struct file *filp, struct vm_area_struct *vma){
 	remap_pfn_range(vma,
-		vma->vm_start,
-		virt_to_phys(filp->private_data) >> PAGE_SHIFT,
-		vma->vm_end - vma->vm_start,
-		vma->vm_page_prot
-	);
+			vma->vm_start,
+			virt_to_phys(filp->private_data) >> PAGE_SHIFT,
+			vma->vm_end - vma->vm_start,
+			vma->vm_page_prot
+			);
 	vma->vm_flags |= VM_RESERVED;
 	return 0;
 }
@@ -130,7 +130,7 @@ static int __init master_init(void)
 		printk("listen failed\n");
 		return -1;
 	}
-    printk("master_device init OK\n");
+	printk("master_device init OK\n");
 	set_fs(old_fs);
 	return 0;
 }
@@ -138,7 +138,7 @@ static int __init master_init(void)
 static void __exit master_exit(void)
 {
 	misc_deregister(&master_dev);
-    printk("misc_deregister\n");
+	printk("misc_deregister\n");
 	if(kclose(sockfd_srv) == -1)
 	{
 		printk("kclose srv error\n");
@@ -165,13 +165,13 @@ int master_open(struct inode *inode, struct file *filp)
 static long master_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param)
 {
 	long ret = -EINVAL;
-	size_t data_size = 0, offset = 0;
+	// size_t data_size = 0, offset = 0;
 	char *tmp;
 	pgd_t *pgd;
 	p4d_t *p4d;
 	pud_t *pud;
 	pmd_t *pmd;
-    pte_t *ptep, pte;
+	pte_t *ptep; //, pte;
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
 
@@ -209,8 +209,7 @@ static long master_ioctl(struct file *file, unsigned int ioctl_num, unsigned lon
 			pud = pud_offset(p4d, ioctl_param);
 			pmd = pmd_offset(pud, ioctl_param);
 			ptep = pte_offset_kernel(pmd , ioctl_param);
-			pte = *ptep;
-			printk("master: %lX\n", pte);
+			printk("master: %lX\n", ptep->pte);
 			ret = 0;
 			break;
 	}
@@ -220,7 +219,7 @@ static long master_ioctl(struct file *file, unsigned int ioctl_num, unsigned lon
 }
 static ssize_t send_msg(struct file *file, const char __user *buf, size_t count, loff_t *data)
 {
-//call when user is writing to this device
+	//call when user is writing to this device
 	char msg[BUF_SIZE];
 	if(copy_from_user(msg, buf, count))
 		return -ENOMEM;
