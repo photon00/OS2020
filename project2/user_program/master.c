@@ -67,13 +67,13 @@ int main (int argc, char* argv[])
 			break;
 
 		case 'm':
+			kernel_address = mmap(NULL, MAP_SIZE, PROT_WRITE, MAP_SHARED, dev_fd, 0);
+			size_t length = MAP_SIZE;
 			while (offset < file_size) {
-				size_t length = MAP_SIZE;
 				if ((file_size - offset) < length) {
 					length = file_size - offset;
 				}
 				file_address = mmap(NULL, length, PROT_READ, MAP_SHARED, file_fd, offset);
-				kernel_address = mmap(NULL, length, PROT_WRITE, MAP_SHARED, dev_fd, offset);
 				memcpy(kernel_address, file_address, length);
 				offset += length;
 				ioctl(dev_fd, 0x12345678, length);

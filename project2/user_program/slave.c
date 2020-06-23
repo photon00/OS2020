@@ -23,7 +23,7 @@ int main (int argc, char* argv[])
 	struct timeval start;
 	struct timeval end;
 	double trans_time; //calulate the time between the device is opened and it is closed
-	char *kernel_address, *file_address;
+	char *mmap_address, *file_address;
 
 	strcpy(file_name, argv[1]);
 	strcpy(method, argv[2]);
@@ -61,6 +61,7 @@ int main (int argc, char* argv[])
 			}while(ret > 0);
 			break;
 		case 'm':
+			mmap_address = mmap(NULL, MAP_SIZE, PROT_READ, MAP_SHARED, dev_fd, 0);
 			while (1) {
 				ret = ioctl(dev_fd, 0x12345678);
 				if (ret == 0) {
@@ -69,8 +70,7 @@ int main (int argc, char* argv[])
 				}
 				posix_fallocate(file_fd, offset, ret);
 				file_address = mmap(NULL, ret, PROT_WRITE, MAP_SHARED, file_fd, offset);
-				kernel_address = mmap(NULL, ret, PROT_READ, MAP_SHARED, dev_fd, offset);
-				memcpy(file_address, kernel_address, ret);
+				memcpy(file_address, mmap_address, ret);
 				offset += ret;
 			}
 			break;
