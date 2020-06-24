@@ -1,11 +1,11 @@
 # OS 2020 Project2
 This is the source code of operating system project2.
 
-``./master_device`` : the device moudule for master server
-``./slave_device``  : the device moudule for slave client
-``./ksocket``: the device moudule including the funtions used for kernel socket
-``./user_program`` : the user program "master" and "slave"
-
+``./master_device`` : the device moudule for master server  
+``./slave_device``  : the device moudule for slave client  
+``./ksocket``: the device moudule including the funtions used for kernel socket  
+``./user_program`` : the user program "master" and "slave"  
+  
 To use it, please:
 ```
     $ make && sudo make install
