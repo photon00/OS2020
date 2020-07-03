@@ -1,0 +1,6 @@
+get numbers of files from master = 5
+Transmission time: 17.916600 ms, File size: 103809024 bytes
+Transmission time: 12.998200 ms, File size: 103809024 bytes
+Transmission time: 16.313900 ms, File size: 103809024 bytes
+Transmission time: 14.164000 ms, File size: 103809024 bytes
+Transmission time: 13.220000 ms, File size: 103809024 bytes

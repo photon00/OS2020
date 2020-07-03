@@ -1,0 +1,11 @@
+get numbers of files from master = 10
+Transmission time: 0.271200 ms, File size: 32 bytes
+Transmission time: 0.032200 ms, File size: 859 bytes
+Transmission time: 0.037100 ms, File size: 1343 bytes
+Transmission time: 0.029100 ms, File size: 1663 bytes
+Transmission time: 0.028100 ms, File size: 2042 bytes
+Transmission time: 0.088000 ms, File size: 3065 bytes
+Transmission time: 0.036800 ms, File size: 2808 bytes
+Transmission time: 0.038000 ms, File size: 4056 bytes
+Transmission time: 0.037800 ms, File size: 3659 bytes
+Transmission time: 0.043700 ms, File size: 4619 bytes

@@ -1,0 +1,6 @@
+tell slave numbers of file = 5
+Transmission time: 953.978100 ms, File size: 103809024 bytes
+Transmission time: 53.830600 ms, File size: 103809024 bytes
+Transmission time: 954.109700 ms, File size: 103809024 bytes
+Transmission time: 56.233000 ms, File size: 103809024 bytes
+Transmission time: 955.182000 ms, File size: 103809024 bytes

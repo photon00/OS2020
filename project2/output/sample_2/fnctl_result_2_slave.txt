@@ -1,0 +1,2 @@
+get numbers of files from master = 1
+Transmission time: 9.678100 ms, File size: 12022885 bytes

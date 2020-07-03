@@ -1,0 +1,2 @@
+tell slave numbers of file = 1
+Transmission time: 0.417900 ms, File size: 12022885 bytes

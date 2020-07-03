@@ -1,0 +1,11 @@
+tell slave numbers of file = 10
+Transmission time: 0.274200 ms, File size: 32 bytes
+Transmission time: 0.036800 ms, File size: 859 bytes
+Transmission time: 0.037200 ms, File size: 1343 bytes
+Transmission time: 0.027000 ms, File size: 1663 bytes
+Transmission time: 0.031800 ms, File size: 2042 bytes
+Transmission time: 0.082600 ms, File size: 3065 bytes
+Transmission time: 0.036700 ms, File size: 2808 bytes
+Transmission time: 0.040000 ms, File size: 4056 bytes
+Transmission time: 0.037600 ms, File size: 3659 bytes
+Transmission time: 0.043900 ms, File size: 4619 bytes
